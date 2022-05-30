@@ -1,12 +1,33 @@
+import 'dart:math';
+
 import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_interactions/nyxx_interactions.dart';
 
 import 'interaction_extensions.dart';
 import 'web_data.dart';
 
+final _random = Random();
+
+final _mittwochEmbed = EmbedBuilder()
+  ..title = "Es ist Mittwoch meine Kerle"
+  ..description = "und Kerlinnen"
+  ..imageUrl = "https://i.redd.it/c86uo3xitcoz.jpg";
+
+final _keinMittwochEmbed = EmbedBuilder()
+  ..title = "Es ist leider kein Mittwoch meine Kerle"
+  ..description = "und Kerlinnen"
+  ..imageUrl = "https://i.imgur.com/EQT3sZ2.png"
+  ..footer = (EmbedFooterBuilder()
+    ..text = "Zertifiziert Schade™"
+    ..iconUrl = "https://cdn.discordapp.com/emojis/819666029638058064.png?v=1");
+
 void handleMittwochCommand(ISlashCommandInteractionEvent event) {
-  event.respond(MessageBuilder.content(
-      "https://media.discordapp.net/attachments/884751057933197313/942595066126544906/1642792870874.gif"));
+  if (_random.nextInt(100) < 10) {
+    event.respond(MessageBuilder.content(
+        "https://media.discordapp.net/attachments/884751057933197313/942595066126544906/1642792870874.gif"));
+  } else {
+    event.respondEmbed(_isWednesday() ? _mittwochEmbed : _keinMittwochEmbed);
+  }
 }
 
 void handleDocsCommand(ISlashCommandInteractionEvent event) {

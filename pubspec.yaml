@@ -1,0 +1,19 @@
+name: mittwotsch
+description: bottus
+version: 1.0.0
+
+environment:
+  sdk: '>=2.16.1 <3.0.0'
+
+publish_to: none
+
+dev_dependencies:
+  lints: ^2.0.0
+dependencies: 
+  logging: ^1.0.2
+  nyxx: ^3.4.2
+  nyxx_interactions: ^4.2.0
+  modrinth_api:
+    path: ../modrinth_api
+  intl: ^0.17.0
+  yaml: ^3.1.1

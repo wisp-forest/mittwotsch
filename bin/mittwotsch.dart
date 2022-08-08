@@ -12,7 +12,7 @@ import 'command_handlers.dart';
 import 'web_data.dart';
 
 final _logger = Logger("bot");
-final modrinth = ModrinthApi();
+final modrinth = ModrinthApi.createClient("wisp-forest/mittwoch-bot");
 
 late final INyxxWebsocket? _bot;
 late final Map<String, dynamic> _config;

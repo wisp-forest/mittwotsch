@@ -11,9 +11,11 @@ dev_dependencies:
   lints: ^2.0.0
 dependencies: 
   logging: ^1.0.2
-  nyxx: ^3.4.2
+  nyxx: ^4.0.0
   nyxx_interactions: ^4.2.0
   modrinth_api:
-    path: ../modrinth_api
+    git: 
+      url: https://github.com/gliscowo/modrinth_api
+      ref: 8b5807c
   intl: ^0.17.0
   yaml: ^3.1.1

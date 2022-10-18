@@ -14,7 +14,7 @@ import 'web_data.dart';
 final _logger = Logger("bot");
 final modrinth = ModrinthApi.createClient("wisp-forest/mittwoch-bot");
 
-late final INyxxWebsocket? _bot;
+late final INyxxWebsocket bot;
 late final Map<String, dynamic> _config;
 
 void main() async {
@@ -28,13 +28,11 @@ void main() async {
   final token = jsonDecode(detailsFile.readAsStringSync())["token"] as String;
   final privilegedGuild = _config["privileged_guild"] as int;
 
-  _bot = NyxxFactory.createNyxxWebsocket(token, GatewayIntents.allUnprivileged,
+  bot = NyxxFactory.createNyxxWebsocket(token, GatewayIntents.allUnprivileged,
       options: ClientOptions(
           initialPresence: PresenceBuilder.of(
               status: UserStatus.idle, activity: ActivityBuilder("being a better Mittwoch", ActivityType.competing))
             ..afk = true));
-
-  final bot = getBot();
 
   bot
     ..registerPlugin(Logging())
@@ -62,7 +60,9 @@ void main() async {
     ..registerSlashCommand(SlashCommandBuilder("truth", "Tells you the truth", [])..registerHandler(handleTruth))
     ..registerSlashCommand(SlashCommandBuilder("lie", "Tells you a lie", [])..registerHandler(handleLie))
     ..events.onModalEvent.listen(announcements.handleAnnounceModal)
-    ..events.onButtonEvent.listen(announcements.handlePublishButton)
+    ..events.onButtonEvent.listen(announcements.handlePublishCancel)
+    ..events.onButtonEvent.listen(announcements.handleAskForPublish)
+    ..events.onButtonEvent.listen(announcements.handlePublishConfirm)
     ..syncOnReady();
 
   stdin.transform(systemEncoding.decoder).transform(LineSplitter()).listen((event) async {
@@ -85,18 +85,14 @@ void main() async {
 }
 
 File openConfig(String filename) {
-  filename = "$filename.json";
+  filename = "config/$filename.json";
 
   final file = File(filename);
   if (!file.existsSync()) {
-    _logger.shout("Could not locate $filename");
+    _logger.shout("Missing config file $filename");
     exit(1);
   }
   return file;
-}
-
-INyxxWebsocket getBot() {
-  return _bot!;
 }
 
 Map<String, dynamic> getConfig() {

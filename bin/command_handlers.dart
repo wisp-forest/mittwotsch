@@ -69,7 +69,13 @@ void Function(IAutocompleteInteractionEvent event) autocompleteHandler(Iterable<
 }
 
 List<ArgChoiceBuilder> _suggestMatching(Iterable<String> candidates, String input) {
-  return candidates.where((element) => element.contains(input)).map((e) => ArgChoiceBuilder(e, e)).toList();
+  var choices = candidates.where((element) => element.contains(input)).map((e) => ArgChoiceBuilder(e, e)).toList();
+
+  if (choices.length > 25) {
+    return [for (int i = 0; i < 25; i++) choices[i]];
+  } else {
+    return choices;
+  }
 }
 
 bool _isWednesday() {

@@ -22,8 +22,7 @@ const _plainAnnouncementPattern = """
             
 {changelog}
             
-:modrinth: {modrinth_url}
-:curseforge: {curseforge_url}
+{modrinth}{curseforge}{github}
 ```
 """;
 
@@ -116,8 +115,9 @@ void handleAnnounceModal(IModalInteractionEvent event) async {
         .replaceAll("{mod_id}", project.title)
         .replaceAll("{version}", version.versionNumber)
         .replaceAll("{changelog}", changelog)
-        .replaceAll("{curseforge_url}", curseforgeUrl)
-        .replaceAll("{modrinth_url}", modrinthUrl)
+        .replaceAll("{curseforge}", curseforgeUrl.isNotEmpty ? ":curseforge: $curseforgeUrl\n" : "")
+        .replaceAll("{modrinth}", modrinthUrl.isNotEmpty ? ":modrinth: $modrinthUrl\n" : "")
+        .replaceAll("{github}", githubUrl.isNotEmpty ? ":github: <$githubUrl>\n" : "")
     ..embeds = [
       embed,
       EmbedBuilder()..fields = [EmbedFieldBuilder("Target Channel", "<#$targetChannel>")]

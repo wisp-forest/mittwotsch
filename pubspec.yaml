@@ -16,6 +16,8 @@ dependencies:
   modrinth_api:
     git: 
       url: https://github.com/gliscowo/modrinth_api
-      ref: 8b5807c
-  intl: ^0.17.0
+      ref: 0497d6f
+  intl: ^0.18.0
   yaml: ^3.1.1
+  image: ^4.0.10
+  http: ^0.13.5

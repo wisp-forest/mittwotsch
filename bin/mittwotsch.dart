@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:http/http.dart';
 import 'package:logging/logging.dart';
 import 'package:modrinth_api/modrinth_api.dart';
 import 'package:nyxx/nyxx.dart';
@@ -13,6 +15,7 @@ import 'web_data.dart';
 
 final _logger = Logger("bot");
 final modrinth = ModrinthApi.createClient("wisp-forest/mittwoch-bot");
+final http = Client();
 
 late final INyxxWebsocket bot;
 late final Map<String, dynamic> _config;
@@ -28,7 +31,7 @@ void main() async {
   final token = jsonDecode(detailsFile.readAsStringSync())["token"] as String;
   final privilegedGuild = _config["privileged_guild"] as int;
 
-  bot = NyxxFactory.createNyxxWebsocket(token, GatewayIntents.allUnprivileged,
+  bot = NyxxFactory.createNyxxWebsocket(token, GatewayIntents.allUnprivileged | GatewayIntents.messageContent,
       options: ClientOptions(
           initialPresence: PresenceBuilder.of(
               status: UserStatus.idle, activity: ActivityBuilder("being a better Mittwoch", ActivityType.competing))
@@ -38,6 +41,7 @@ void main() async {
     ..registerPlugin(Logging())
     ..registerPlugin(CliIntegration())
     ..registerPlugin(IgnoreExceptions())
+    ..registerPlugin(CloseHttp())
     ..connect();
 
   await earlyLogging.cancel();
@@ -50,7 +54,7 @@ void main() async {
     ])
       ..registerHandler(handleFaqCommand))
     ..registerSlashCommand(SlashCommandBuilder("announce", "Announces a new mod release", [],
-        guild: Snowflake.value(privilegedGuild), requiredPermissions: 0)
+        guild: Snowflake.value(privilegedGuild), requiredPermissions: PermissionsConstants.administrator)
       ..registerHandler(announcements.handleAnnounceCommand))
     ..registerSlashCommand(SlashCommandBuilder("docs", "Get a URL to the specified Wisp Forest docs page", [
       CommandOptionBuilder(CommandOptionType.string, "path", "The page to query", required: true, autoComplete: true)
@@ -82,6 +86,11 @@ void main() async {
 
   bot.eventsWs.onMessageReceived.listen(handleOwl);
   bot.eventsWs.onMessageReceived.listen(handleTLauncher);
+}
+
+class CloseHttp extends BasePlugin {
+  @override
+  FutureOr<void> onBotStop(INyxx nyxx, Logger logger) async => http.close();
 }
 
 File openConfig(String filename) {

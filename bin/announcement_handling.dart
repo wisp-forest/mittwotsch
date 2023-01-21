@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:image/image.dart';
 import 'package:intl/intl.dart';
 import 'package:nyxx/nyxx.dart';
 import 'package:nyxx_interactions/nyxx_interactions.dart';
@@ -93,6 +94,15 @@ void handleAnnounceModal(IModalInteractionEvent event) async {
   final changelog =
       _formatChangelog(changelogInput.trim().isEmpty ? version.changelog ?? "<no changelog provided>" : changelogInput);
 
+  final iconPalette = OctreeQuantizer(
+    (await http
+        .get(Uri.parse(project.iconUrl!))
+        .then((response) => response.bodyBytes)
+        .then(PngDecoder().decode)
+        .then((image) => image!)),
+    numberOfColors: 5,
+  ).palette;
+
   final embed = EmbedBuilder()
     ..title = "**${project.title}** • Update"
     ..fields = [
@@ -100,6 +110,11 @@ void handleAnnounceModal(IModalInteractionEvent event) async {
       EmbedFieldBuilder("Version", version.versionNumber, true),
       EmbedFieldBuilder("Minecraft Versions", version.gameVersions.join(" "), true)
     ]
+    ..color = DiscordColor.fromRgb(
+      iconPalette.getRed(1).toInt(),
+      iconPalette.getGreen(1).toInt(),
+      iconPalette.getBlue(1).toInt(),
+    )
     ..thumbnailUrl = project.iconUrl
     ..addFooter((footer) {
       footer
@@ -172,7 +187,7 @@ void handlePublishConfirm(IButtonInteractionEvent event) async {
     if (channel is ITextChannel) {
       final buttons = ComponentRowBuilder()
         ..addComponent(LinkButtonBuilder("Modrinth", announcement.modrinthUrl,
-            emoji: IBaseGuildEmoji.fromId(Snowflake.value(909845280340443196))));
+            emoji: IBaseGuildEmoji.fromId(Snowflake.value(1065583279346036757))));
 
       if (announcement.curseforgeUrl.isNotEmpty) {
         buttons.addComponent(LinkButtonBuilder("CurseForge", announcement.curseforgeUrl,

@@ -26,7 +26,7 @@ void handleOwl(IMessageReceivedEvent event) {
 void handleTLauncher(IMessageReceivedEvent event) {
   if (!_checkCooldown(_tlauncherEvent)) return;
   var content = event.message.content.toLowerCase();
-  if (!(content.contains(" tlauncher ") || content.contains(" t launcher "))) return;
+  if (!(content.contains(" tlauncher") || content.contains(" t launcher "))) return;
 
   event.message.channel.sendMessage(MessageBuilder.embed(EmbedBuilder()
     ..title = "friendly reminder about rule #3"
@@ -35,7 +35,7 @@ void handleTLauncher(IMessageReceivedEvent event) {
 }
 
 bool _checkCooldown(String key) {
-  return millis() - _cooldowns[key]! >= 60000;
+  return millis() - (_cooldowns[key] ?? 0) >= 60000;
 }
 
 int millis() => DateTime.now().millisecondsSinceEpoch;

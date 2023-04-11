@@ -11,7 +11,7 @@ dev_dependencies:
   lints: ^2.0.0
 dependencies: 
   logging: ^1.0.2
-  nyxx: ^4.0.0
+  nyxx: ^5.0.1
   nyxx_interactions: ^4.2.0
   modrinth_api:
     git: 

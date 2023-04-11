@@ -118,7 +118,7 @@ void handleAnnounceModal(IModalInteractionEvent event) async {
     ..thumbnailUrl = project.iconUrl
     ..addFooter((footer) {
       footer
-        ..iconUrl = author.avatarURL()
+        ..iconUrl = author.avatarUrl()
         ..text =
             "${author.username}#${author.discriminator} • ${DateFormat(DateFormat.YEAR_MONTH_DAY).format(DateTime.now())}";
     });
@@ -187,22 +187,26 @@ void handlePublishConfirm(IButtonInteractionEvent event) async {
     if (channel is ITextChannel) {
       final buttons = ComponentRowBuilder()
         ..addComponent(LinkButtonBuilder("Modrinth", announcement.modrinthUrl,
-            emoji: IBaseGuildEmoji.fromId(Snowflake.value(1065583279346036757))));
+            emoji: IBaseGuildEmoji.fromId(Snowflake.value(1065583279346036757), bot)));
 
       if (announcement.curseforgeUrl.isNotEmpty) {
         buttons.addComponent(LinkButtonBuilder("CurseForge", announcement.curseforgeUrl,
-            emoji: IBaseGuildEmoji.fromId(Snowflake.value(909845280323678240))));
+            emoji: IBaseGuildEmoji.fromId(Snowflake.value(909845280323678240), bot)));
       }
 
       if (announcement.githubUrl.isNotEmpty) {
         buttons.addComponent(LinkButtonBuilder("GitHub", announcement.githubUrl,
-            emoji: IBaseGuildEmoji.fromId(Snowflake.value(1031975515239755806))));
+            emoji: IBaseGuildEmoji.fromId(Snowflake.value(1031975515239755806), bot)));
       }
 
-      final post = channel.sendMessage(ComponentMessageBuilder()
+      final message = ComponentMessageBuilder()
         ..embeds = [announcement.embed]
-        ..componentRows = [buttons]);
+        ..componentRows = [buttons];
+      if (getConfig()["release_announcement_role"] is int) {
+        message.content = "<@&${getConfig()["release_announcement_role"]}>";
+      }
 
+      final post = channel.sendMessage(message);
       if (channel.channelType == ChannelType.guildNews) {
         post.then((value) => value.crossPost());
       }

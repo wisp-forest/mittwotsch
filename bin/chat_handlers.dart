@@ -9,29 +9,33 @@ const rule3Text =
 
 final Map<String, int> _cooldowns = {_owlEvent: 0, _frogeEvent: 0, _tlauncherEvent: 0};
 
-void handleOwl(IMessageReceivedEvent event) {
+void handleOwl(MessageCreateEvent event) {
   if (!_checkCooldown(_owlEvent)) return;
-  if (!event.message.mentions.any((element) => element.id.id == 527201723677278217)) return;
+  if (!event.message.mentions.any((element) => element.id.value == 527201723677278217)) return;
 
   final channel = event.message.channel;
-  channel.sendMessage(MessageBuilder.embed(EmbedBuilder()
-    ..title = "Thou hast poketh the owle"
-    ..description = "👉🦉"
-    ..imageUrl = "https://media.discordapp.net/attachments/804707289223004194/908718259266781205/owlpoke.gif"
-    ..addFooter((footer) => footer.text = "pokey poke")));
+  channel.sendMessage(MessageBuilder(embeds: [
+    EmbedBuilder()
+      ..title = "Thou hast poketh the owle"
+      ..description = "👉🦉"
+      ..image = EmbedImageBuilder(
+          url: Uri.parse("https://media.discordapp.net/attachments/804707289223004194/908718259266781205/owlpoke.gif"))
+      ..footer = EmbedFooterBuilder(text: "pokey poke")
+  ]));
 
   _cooldowns[_owlEvent] = millis();
 }
 
-void handleTLauncher(IMessageReceivedEvent event) {
+void handleTLauncher(MessageCreateEvent event) {
   if (!_checkCooldown(_tlauncherEvent)) return;
   var content = event.message.content.toLowerCase();
   if (!(content.contains(" tlauncher") || content.contains(" t launcher "))) return;
 
-  event.message.channel.sendMessage(MessageBuilder.embed(EmbedBuilder()
-    ..title = "friendly reminder about rule #3"
-    ..description = rule3Text)
-    ..replyBuilder = ReplyBuilder.fromMessage(event.message));
+  event.message.channel.sendMessage(MessageBuilder(embeds: [
+    EmbedBuilder()
+      ..title = "friendly reminder about rule #3"
+      ..description = rule3Text
+  ], replyId: event.message.id));
 }
 
 bool _checkCooldown(String key) {

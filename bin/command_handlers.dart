@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:nyxx/nyxx.dart';
-import 'package:nyxx_interactions/nyxx_interactions.dart';
+import 'package:nyxx_commands/nyxx_commands.dart';
 
 import 'interaction_extensions.dart';
 import 'web_data.dart';
@@ -11,71 +11,76 @@ final _random = Random();
 final _mittwochEmbed = EmbedBuilder()
   ..title = "Es ist Mittwoch meine Kerle"
   ..description = "und Kerlinnen"
-  ..imageUrl = "https://i.redd.it/c86uo3xitcoz.jpg";
+  ..image = EmbedImageBuilder(url: Uri.parse("https://i.redd.it/c86uo3xitcoz.jpg"));
 
 final _keinMittwochEmbed = EmbedBuilder()
   ..title = "Es ist leider kein Mittwoch meine Kerle"
   ..description = "und Kerlinnen"
-  ..imageUrl = "https://i.imgur.com/EQT3sZ2.png"
-  ..footer = (EmbedFooterBuilder()
-    ..text = "Zertifiziert Schade™"
-    ..iconUrl = "https://cdn.discordapp.com/emojis/819666029638058064.png?v=1");
+  ..image = EmbedImageBuilder(url: Uri.parse("https://i.imgur.com/EQT3sZ2.png"))
+  ..footer = (EmbedFooterBuilder(text: "Zertifiziert Schade™")
+    ..iconUrl = Uri.parse("https://cdn.discordapp.com/emojis/819666029638058064.png?v=1"));
 
-void handleMittwochCommand(ISlashCommandInteractionEvent event) {
-  if (_random.nextInt(100) < 10) {
-    event.respond(MessageBuilder.content(
-        "https://media.discordapp.net/attachments/884751057933197313/942595066126544906/1642792870874.gif"));
-  } else {
-    event.respondEmbed(_isWednesday() ? _mittwochEmbed : _keinMittwochEmbed);
-  }
-}
+Iterable<String> provideFaqEntries(ContextData data) => faqMappings.keys;
+Iterable<String> provideDocEntries(ContextData data) => docEntries;
+String stringToString(String string) => string;
 
-void handleDocsCommand(ISlashCommandInteractionEvent event) {
-  final path = event.getOption<String>("path")!.replaceAll(".", "/");
-  event.respond(MessageBuilder()..content = "https://docs.wispforest.io/$path/");
-}
+void registerCommands(CommandsPlugin commands) {
+  commands.addCommand(ChatCommand(
+    "mittwoch",
+    "Foil",
+    id("mittwotch", (ChatContext context) {
+      if (_random.nextInt(100) < 10) {
+        context.respond(MessageBuilder(
+            content:
+                "https://media.discordapp.net/attachments/884751057933197313/942595066126544906/1642792870874.gif"));
+      } else {
+        context.respondEmbed(_isWednesday() ? _mittwochEmbed : _keinMittwochEmbed);
+      }
+    }),
+  ));
 
-void handleFaqCommand(ISlashCommandInteractionEvent event) {
-  final requestedEntry = event.getArg("entry").value as String;
+  commands.addCommand(ChatCommand(
+    "truth",
+    "Tells you the truth",
+    id("truth", (ChatContext context) {
+      context.respond(MessageBuilder(content: "Bow before the destroyer of your saviour, Mittwotsch on 🎯"));
+    }),
+  ));
 
-  if (faqMappings.containsKey(requestedEntry)) {
-    final faqEntry = faqMappings[requestedEntry]!;
+  commands.addCommand(ChatCommand(
+    "lie",
+    "Tells you a lie",
+    id("lie", (ChatContext context) {
+      context.respond(MessageBuilder(content: _isWednesday() ? "it's not wednesday" : "it's wednesday"));
+    }),
+  ));
 
-    event.respondEmbed(EmbedBuilder()
-      ..title = "Wisp Forest FAQ"
-      ..color = DiscordColor.fromInt(0x4051b5)
-      ..description = "[${faqEntry.title}](${faqEntry.url})");
-  } else {
-    event.respondError("Unknown FAQ entry");
-  }
-}
+  // ---
 
-void handleTruth(ISlashCommandInteractionEvent event) {
-  event.respond(MessageBuilder()..content = "Bow before the destroyer of your saviour, Mittwotsch on 🎯");
-}
+  const Converter<String> faqConverter = SimpleConverter(provider: provideFaqEntries, stringify: stringToString);
+  commands.addCommand(ChatCommand(
+    "faq",
+    "Get the URl to a Wisp Forest FAQ entry",
+    id("faq", (ChatContext context, @UseConverter(faqConverter) @Description("The entry to query") String entry) {
+      final requestedEntry = faqMappings[entry]!;
 
-void handleLie(ISlashCommandInteractionEvent event) {
-  event.respond(MessageBuilder()..content = _isWednesday() ? "it's not wednesday" : "it's wednesday");
-}
+      context.respondEmbed(EmbedBuilder()
+        ..title = "Wisp Forest FAQ"
+        ..color = DiscordColor(0x4051b5)
+        ..description = "[${requestedEntry.title}](${requestedEntry.url})");
+    }),
+  ));
 
-void Function(IAutocompleteInteractionEvent event) autocompleteHandler(Iterable<String> candidates, String option) {
-  return (event) {
-    if (event.focusedOption.name == option) {
-      event.respond(_suggestMatching(candidates, event.focusedOption.value));
-    } else {
-      event.respond([]);
-    }
-  };
-}
+  // ---
 
-List<ArgChoiceBuilder> _suggestMatching(Iterable<String> candidates, String input) {
-  var choices = candidates.where((element) => element.contains(input)).map((e) => ArgChoiceBuilder(e, e)).toList();
-
-  if (choices.length > 25) {
-    return [for (int i = 0; i < 25; i++) choices[i]];
-  } else {
-    return choices;
-  }
+  const Converter<String> docsConverter = SimpleConverter(provider: provideDocEntries, stringify: stringToString);
+  commands.addCommand(ChatCommand(
+    "docs",
+    "Get a URL to the specified Wisp Forest docs page",
+    id("docs", (ChatContext context, @UseConverter(docsConverter) @Description("The page to query") String path) {
+      context.respond(MessageBuilder()..content = "https://docs.wispforest.io/${path.replaceAll(".", "/")}/");
+    }),
+  ));
 }
 
 bool _isWednesday() {

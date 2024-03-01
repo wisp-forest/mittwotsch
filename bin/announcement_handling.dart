@@ -133,6 +133,15 @@ void registerAnnouncementCommand(CommandsPlugin commands) {
             text: "@${context.user.username} • ${DateFormat(DateFormat.YEAR_MONTH_DAY).format(DateTime.now())}",
             iconUrl: context.user.avatar.url);
 
+      var role = botConfig["release_announcement_roles"] is List<dynamic>
+          ? await context.getSelection(
+              await Future.wait((botConfig["release_announcement_roles"] as List<dynamic>)
+                  .cast<int>()
+                  .map((e) => context.guild!.roles.get(Snowflake(e)))),
+              MessageBuilder(content: "Announcement role to ping:"),
+              level: ResponseLevel.hint)
+          : null;
+
       var targetChannel = botConfig["announcement_channel"] as int;
       var doPublish = await context.getConfirmation(
         MessageBuilder(
@@ -196,8 +205,8 @@ void registerAnnouncementCommand(CommandsPlugin commands) {
           ..embeds = [announcementEmbed]
           ..components = [ActionRowBuilder(components: buttons)];
 
-        if (botConfig["release_announcement_role"] is int) {
-          message.content = "<@&${botConfig["release_announcement_role"]}>";
+        if (role != null) {
+          message.content = "<@&${role.id.value}>";
         }
 
         final post = channel.sendMessage(message);

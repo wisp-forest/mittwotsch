@@ -149,7 +149,7 @@ void registerAnnouncementCommand(CommandsPlugin commands) {
               .replaceAll("{mod_id}", project.title)
               .replaceAll("{version}", version.versionNumber)
               .replaceAll("{changelog}", changelog)
-              .replaceAll("{curseforge}", curseforgeUrl.isNotEmpty ? ":curseforge: $curseforgeUrl\n" : "")
+              .replaceAll("{curseforge}", curseforgeUrl.isNotEmpty ? ":curseforge: <$curseforgeUrl>\n" : "")
               .replaceAll("{modrinth}", modrinthUrl.isNotEmpty ? ":modrinth: $modrinthUrl\n" : "")
               .replaceAll("{github}", githubUrl.isNotEmpty ? ":github: <$githubUrl>\n" : ""),
           embeds: [

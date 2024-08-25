@@ -61,6 +61,8 @@ void main() async {
 class ShutdownHook extends NyxxPlugin {
   @override
   Future<void> doClose(Nyxx client, Future<void> Function() close) async {
+    super.doClose(client, close);
+
     http.close();
     modrinth.dispose();
   }
